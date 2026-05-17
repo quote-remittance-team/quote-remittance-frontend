@@ -4,6 +4,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import DashboardLayout from './components/dashboard/layouts/DashboardLayout';
 import LoginForm from './components/LoginForm';
 import QuoteRequestForm from './components/QuoteRequestForm';
+import UserRegistrationForm from './components/UserRegistrationForm';
 import DashboardHomePage from './pages/dashboard/DashboardHomePage';
 import QuotesPage from './pages/dashboard/QuotesPage';
 import SettingsPage from './pages/dashboard/SettingsPage';
@@ -39,6 +40,7 @@ function App() {
       </Route>
 
       <Route path="/request-quote" element={<QuoteRequestForm />} />
+      <Route path="/register" element={<UserRegistrationForm />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

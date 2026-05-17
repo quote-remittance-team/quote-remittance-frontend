@@ -31,7 +31,7 @@ const Navbar = () => {
             </Link>
 
             <Link
-              to="/request-quote"
+              to="/register"
               className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
             >
               Get Started

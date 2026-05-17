@@ -3,6 +3,8 @@ import { useState } from 'react';
 
 import { api, ACCESS_TOKEN_KEY } from '../api/client';
 
+import { navigateTo } from '@/utils/navigation';
+
 interface LoginCredentials {
   email: string;
   password: string;
@@ -21,6 +23,8 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({
@@ -64,7 +68,7 @@ export default function LoginForm() {
       setIsLoading(true);
 
       try {
-        const response = await api.post('/auth', credentials);
+        const response = await api.post('/auth/login', credentials);
 
         if (response.status === 200) {
           const token = response.data.token;
@@ -74,7 +78,7 @@ export default function LoginForm() {
           }
           // eslint-disable-next-line no-console
           console.log('Login successful! Token secured.');
-          // navigateTo('/dashboard);
+          navigateTo('/dashboard');
         }
       } catch (error) {
         if (isAxiosError(error)) {
@@ -124,13 +128,21 @@ export default function LoginForm() {
           <div>
             <label className="block text-sm font-medium text-gray-800">Password</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               value={credentials.password}
               onChange={handleChange}
               className={`w-full px-4 py-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${fieldErrors.password ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="......."
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className=" mt-1 text-sm font-medium text-gray-300 hover:text-gray-300"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+
             {fieldErrors.password && (
               <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>
             )}

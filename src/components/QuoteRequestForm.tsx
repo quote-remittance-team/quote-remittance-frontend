@@ -73,8 +73,8 @@ export default function QuoteRequestForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-blue-200">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-8">
+      <div className="w-full max-w-md mx-auto mt-4 p-6 bg-white rounded-lg shadow-md sm:mt-10 sm:p-8 border border-blue-200">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Request a Quote</h2>
         <form onSubmit={handleGetQuote} className="space-y-4">
           <div>
@@ -89,8 +89,8 @@ export default function QuoteRequestForm() {
               placeholder="e.g 5000"
             />
           </div>
-          <div className="flex space-x-4">
-            <div className="w-1/2">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <div className="w-full sm:w-1/2">
               <label className="block text-sm font-medium text-gray-700">From Currency</label>
               <select
                 name="fromCurrency"
@@ -102,13 +102,13 @@ export default function QuoteRequestForm() {
                 <option value="USD">US Dollar (USD)</option>
               </select>
             </div>
-            <div className="w-1/2">
+            <div className="w-full sm:w-1/2">
               <label className="block text-sm font-medium text-gray-700">To Currency</label>
               <select
                 name="toCurrency"
                 value={formData.toCurrency}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="NGN">Naira (NGN)</option>
                 <option value="USD">US Dollar (USD)</option>
