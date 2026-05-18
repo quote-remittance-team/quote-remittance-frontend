@@ -72,9 +72,13 @@ export default function LoginForm() {
 
         if (response.status === 200) {
           const token = response.data.token;
+          const userId = response.data.userId;
 
           if (token) {
             localStorage.setItem(ACCESS_TOKEN_KEY, token);
+          }
+          if (userId) {
+            localStorage.setItem('userId', userId);
           }
           // eslint-disable-next-line no-console
           console.log('Login successful! Token secured.');

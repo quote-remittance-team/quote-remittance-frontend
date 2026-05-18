@@ -7,12 +7,14 @@ interface FormData {
   sendAmount: string | number;
   fromCurrency: string;
   toCurrency: string;
+  userId: string;
 }
 
 interface QuoteResponse {
   exchangeRate: number;
   fee: number;
   receiveAmount: number;
+  userId: string;
 }
 
 export default function QuoteRequestForm() {
@@ -20,6 +22,7 @@ export default function QuoteRequestForm() {
     sendAmount: '',
     fromCurrency: 'NGN',
     toCurrency: 'USD',
+    userId: '',
   });
 
   const [quoteResult, setQuoteResult] = useState<QuoteResponse | null>(null);
@@ -40,7 +43,9 @@ export default function QuoteRequestForm() {
     setErrorMessage(null);
     setQuoteResult(null);
     try {
+      const currentUserId = localStorage.getItem('userId');
       const response = await api.post('/quotes', {
+        userId: currentUserId,
         sendAmount: Number(formData.sendAmount),
         fromCurrency: formData.fromCurrency,
         toCurrency: formData.toCurrency,
