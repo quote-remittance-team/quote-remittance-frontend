@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios';
 import { useState } from 'react';
 
-import { api, ACCESS_TOKEN_KEY } from '../api/client';
+import { api, ACCESS_TOKEN_KEY, USER_ID_KEY } from '../api/client';
 
 import { navigateTo } from '@/utils/navigation';
 
@@ -78,7 +78,7 @@ export default function LoginForm() {
             localStorage.setItem(ACCESS_TOKEN_KEY, token);
           }
           if (userId) {
-            localStorage.setItem('userId', userId);
+            localStorage.setItem(USER_ID_KEY, userId);
           }
           // eslint-disable-next-line no-console
           console.log('Login successful! Token secured.');

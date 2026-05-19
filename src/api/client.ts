@@ -4,6 +4,7 @@ import { navigateTo } from '../utils/navigation';
 
 // Constants
 export const ACCESS_TOKEN_KEY = 'accessToken';
+export const USER_ID_KEY = 'userId';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 

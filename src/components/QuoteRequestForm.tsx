@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios';
 import React, { useState } from 'react';
 
-import { api } from '../api/client';
+import { api, USER_ID_KEY } from '../api/client';
 
 interface FormData {
   sendAmount: string | number;
@@ -43,7 +43,7 @@ export default function QuoteRequestForm() {
     setErrorMessage(null);
     setQuoteResult(null);
     try {
-      const currentUserId = localStorage.getItem('userId');
+      const currentUserId = localStorage.getItem(USER_ID_KEY);
       const response = await api.post('/quotes', {
         userId: currentUserId,
         sendAmount: Number(formData.sendAmount),
