@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -27,6 +27,9 @@ jobs:
 
       - name: Run Prettier check
         run: npm run format:check
+
+      - name: Build application
+        run: npm run build
 
       - name: Validate commit messages
         uses: wagoid/commitlint-github-action@v6
