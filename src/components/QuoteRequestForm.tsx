@@ -45,7 +45,7 @@ export default function QuoteRequestForm() {
     try {
       const currentUserId = localStorage.getItem(USER_ID_KEY);
       const response = await api.post('/quotes', {
-        userId: currentUserId,
+        userId: currentUserId || '',
         sendAmount: Number(formData.sendAmount),
         fromCurrency: formData.fromCurrency,
         toCurrency: formData.toCurrency,
