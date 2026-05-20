@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
     const { status } = error.response;
 
-    if (status === 401  || status === 403) {
+    if (status === 401 || status === 403) {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(USER_ID_KEY);
 
