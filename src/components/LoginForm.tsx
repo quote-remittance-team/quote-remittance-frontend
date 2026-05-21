@@ -69,6 +69,7 @@ export default function LoginForm() {
 
       try {
         const response = await api.post('/auth/login', credentials);
+        localStorage.setItem('userEmail', credentials.email);
 
         if (response.status === 200) {
           const token = response.data.token;

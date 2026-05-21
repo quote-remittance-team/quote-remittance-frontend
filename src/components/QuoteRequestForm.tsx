@@ -1,5 +1,6 @@
 import { isAxiosError } from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { api, USER_ID_KEY } from '../api/client';
 
@@ -10,14 +11,8 @@ interface FormData {
   userId: string;
 }
 
-interface QuoteResponse {
-  exchangeRate: number;
-  fee: number;
-  receiveAmount: number;
-  userId: string;
-}
-
 export default function QuoteRequestForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     sendAmount: '',
     fromCurrency: 'NGN',
@@ -25,7 +20,6 @@ export default function QuoteRequestForm() {
     userId: '',
   });
 
-  const [quoteResult, setQuoteResult] = useState<QuoteResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -41,7 +35,6 @@ export default function QuoteRequestForm() {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
-    setQuoteResult(null);
     try {
       const currentUserId = localStorage.getItem(USER_ID_KEY);
       const response = await api.post('/quotes', {
@@ -51,7 +44,12 @@ export default function QuoteRequestForm() {
         toCurrency: formData.toCurrency,
       });
 
-      setQuoteResult(response.data);
+      navigate('/deposit', {
+        state: {
+          quoteResult: response.data,
+          requestData: formData,
+        },
+      });
     } catch (error) {
       if (isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
@@ -81,7 +79,7 @@ export default function QuoteRequestForm() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-8">
       <div className="w-full max-w-md mx-auto mt-4 p-6 bg-white rounded-lg shadow-md sm:mt-10 sm:p-8 border border-blue-200">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Request a Quote</h2>
-        <form onSubmit={handleGetQuote} className="space-y-4">
+        <form noValidate onSubmit={handleGetQuote} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Send Amount</label>
             <input
@@ -132,32 +130,6 @@ export default function QuoteRequestForm() {
         {errorMessage && (
           <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-200 rounded-md text-sm">
             {errorMessage}
-          </div>
-        )}
-
-        {quoteResult && (
-          <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Quote Details:</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex justify-between">
-                <span>Exchange Rate:</span>
-                <span className="font-medium text-gray-900">{quoteResult.exchangeRate}</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Fee:</span>
-                <span className="font-medium text-gray-900">
-                  {quoteResult.fee}
-                  {formData.fromCurrency}
-                </span>
-              </li>
-              <li className="flex justify-between border-t border-gray-200 pt-2 mt-2">
-                <span className="font-bold text-gray-800">You Recieve:</span>
-                <span className="font-bold text-gray-800 text-base">
-                  {quoteResult.receiveAmount}
-                  {formData.toCurrency}
-                </span>
-              </li>
-            </ul>
           </div>
         )}
       </div>
