@@ -43,6 +43,7 @@ api.interceptors.response.use(
 
     if (status === 401) {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(USER_ID_KEY);
 
       // NOTE: Replace later with state-based logout if using Redux/Zustand
       navigateTo('/login');
