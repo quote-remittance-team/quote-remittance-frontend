@@ -33,6 +33,11 @@ export default function QuoteRequestForm() {
 
   const handleGetQuote = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const amountToCheck = Number(formData.sendAmount);
+    if (!formData.sendAmount || amountToCheck <= 0) {
+      setErrorMessage('Please enter a valid send amount greater than 0');
+      return;
+    }
     setIsLoading(true);
     setErrorMessage(null);
     try {

@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
-import { usePaystackPayment } from 'react-paystack';
+import { isAxiosError } from 'axios';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
 import { api } from '../api/client';
@@ -10,7 +10,7 @@ interface RouteState {
     fee: number;
     receiveAmount: number;
     quoteId?: string;
-    expireAt?: string;
+    expiresAt?: string;
   };
   requestData: {
     sendAmount: string | number;
@@ -24,8 +24,20 @@ export default function DepositPage() {
   const navigate = useNavigate();
   const state = location.state as RouteState | null;
   const [generatedTime] = useState<string>(new Date().toLocaleTimeString());
-  const [timeLeft, setTimeLeft] = useState<number>(180);
-  const savedEmail = localStorage.getItem('userEmail');
+  const [savedEmail] = useState(() => localStorage.getItem('userEmail'));
+
+  const [globalError, setGlobalError] = useState<string>('');
+  const [isInitializingPayment, setIsInitializingPayment] = useState<boolean>(false);
+
+  const [timeLeft, setTimeLeft] = useState<number>(() => {
+    if (state?.quoteResult?.expiresAt) {
+      const expireTime = new Date(state.quoteResult.expiresAt).getTime();
+      const currentTime = new Date().getTime();
+      const diffSeconds = Math.max(0, Math.floor((expireTime - currentTime) / 1000));
+      return diffSeconds > 0 ? diffSeconds : 0;
+    }
+    return 180;
+  });
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -38,29 +50,36 @@ export default function DepositPage() {
     return () => clearInterval(timerId);
   }, [timeLeft, navigate]);
 
-  const { quoteResult, requestData } = state || {};
+  if (!savedEmail) {
+    return <Navigate to="/login" replace />;
+  }
 
+  if (!state || !state.quoteResult) {
+    return <Navigate to="/request-quote" replace />;
+  }
+
+  const { quoteResult, requestData } = state;
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const displayTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
   const BASE_CURRENCY = 'NGN';
-  const isForeignCurrency = requestData?.fromCurrency.toUpperCase() !== 'NGN';
+  const isForeignCurrency = requestData?.fromCurrency?.toUpperCase() !== BASE_CURRENCY;
   const normalizeAmount = isForeignCurrency
     ? Number(requestData?.sendAmount || 0) * Number(quoteResult?.exchangeRate || 0)
     : Number(requestData?.sendAmount || 0);
-  const [backendReference, setBackendReference] = useState<string | undefined>(undefined);
-  const hasOpened = useRef(false);
-  const config = {
-    amount: Math.round(normalizeAmount * 100),
-    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-    email: savedEmail || 'user@example.com',
-    currency: BASE_CURRENCY,
-    reference: backendReference,
-  };
 
-  const initializePayment = usePaystackPayment(config);
+  const handleDeposit = async () => {
+    setGlobalError('');
+    if (normalizeAmount < 100) {
+      setGlobalError(
+        'The minimum processing amount is 100 NGN. Please request a new quote with  higher amount',
+      );
+      return;
+    }
 
-  const handleStartDeposit = async () => {
+    setIsInitializingPayment(true);
+
     try {
       const response = await api.post('/deposits', {
         amount: normalizeAmount,
@@ -71,34 +90,20 @@ export default function DepositPage() {
       if (response.data.checkoutUrl) {
         window.location.href = response.data.checkoutUrl;
       } else {
-        console.error('No checkout URL returned from backend:', response.data);
+        setGlobalError('No checkout URL returned from backend');
       }
     } catch (error) {
-      console.error('Error initiating payment:', error);
+      let serverMessage = 'could not initiate transaction with the server.';
+      if (isAxiosError(error)) {
+        serverMessage = error.response?.data?.message || serverMessage;
+      } else if (error instanceof Error) {
+        serverMessage = error.message;
+      }
+      setGlobalError(serverMessage);
+    } finally {
+      setIsInitializingPayment(false);
     }
   };
-
-  const handleDeposit = (reference: unknown) => {
-    //eslint-disable-next-line no-console
-    console.log('Payment initialized:', reference);
-    alert('Payment successful! your backend webhook is handling the validation database updates');
-  };
-
-  const onClose = () => {
-    //eslint-disable-next-line no-console
-    console.log('Payment workflow cancelled by user closing the overlay window.');
-    setBackendReference(undefined);
-    hasOpened.current = false;
-  };
-  useEffect(() => {
-    if (backendReference && !hasOpened.current) {
-      hasOpened.current = true;
-      initializePayment({ onSuccess: handleDeposit, onClose: onClose });
-    }
-  }, [backendReference, initializePayment]);
-  if (!state || !state.quoteResult) {
-    return <Navigate to="/request-quote" replace />;
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 py-8 bg-gray-50">
@@ -106,9 +111,14 @@ export default function DepositPage() {
         <div className="mb-6">
           <h2 className="mb-6 text-2xl font-bold text-gray-800">Deposit Details</h2>
           <p className="text-xs text-gray-500 mt-1">
-            Quote Reference: {quoteResult?.quoteId || `REF-${Math.floor(Math.random() * 1000000)}`}
+            Quote Reference: {quoteResult?.quoteId || 'N/A'}
           </p>
         </div>
+        {globalError && (
+          <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 border border-red-200 rounded-md">
+            {globalError}
+          </div>
+        )}
         <div className="p-5 border border-gray-200 rounded-md bg-gray-50">
           <ul className="space-y-4 text-sm text-gray-600">
             <li className="flex justify-between pb-3 border-b border-gray-200">
@@ -154,14 +164,20 @@ export default function DepositPage() {
 
         <div className="mt-8 space-y-3">
           <button
-            onClick={handleStartDeposit}
-            className="w-full p-3 text-lg font-medium text-white transition-colors bg-green-600 rounded-md hover:bg-green-700"
+            onClick={handleDeposit}
+            disabled={isInitializingPayment}
+            className={`w-full p-3 text-lg font-medium text-white transition-colors rounded-md ${
+              isInitializingPayment
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-green-600 hover:bg-green-700'
+            }`}
           >
-            Deposit & send
+            {isInitializingPayment ? 'Connecting to Server...' : 'Deposit & send'}
           </button>
 
           <button
             onClick={() => navigate(-1)}
+            disabled={isInitializingPayment}
             className="w-full p-3 font-medium text-gray-600 transition-colors bg-white border border-gray-300 rounded-md hover:bg-gray-50"
           >
             Cancel / Edit Quote
