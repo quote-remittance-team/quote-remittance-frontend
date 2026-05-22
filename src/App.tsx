@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 
 import DashboardLayout from './components/dashboard/layouts/DashboardLayout';
+import DepositPage from './components/DepositPage';
 import LoginForm from './components/LoginForm';
 import QuoteRequestForm from './components/QuoteRequestForm';
 import UserRegistrationForm from './components/UserRegistrationForm';
@@ -41,6 +42,7 @@ function App() {
 
       <Route path="/request-quote" element={<QuoteRequestForm />} />
       <Route path="/register" element={<UserRegistrationForm />} />
+      <Route path="/deposit" element={<DepositPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
