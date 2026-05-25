@@ -22,6 +22,11 @@ const links = [
     path: '/dashboard/settings',
     icon: FiSettings,
   },
+  {
+    label: 'Request Quote',
+    path: '/request-quote',
+    icon: FiDollarSign,
+  },
 ];
 
 const Sidebar = () => {
