@@ -19,11 +19,22 @@ interface RouteState {
   };
 }
 
+const generateIdempotencyKey = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 export default function DepositPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as RouteState | null;
-  const [generatedTime] = useState<string>(new Date().toLocaleTimeString());
+  const [generatedTime] = useState<string>(new Date().toLocaleTimeString('en-US'));
   const [savedEmail] = useState(() => localStorage.getItem('userEmail'));
 
   const [globalError, setGlobalError] = useState<string>('');
@@ -73,7 +84,7 @@ export default function DepositPage() {
     setGlobalError('');
     if (normalizeAmount < 100) {
       setGlobalError(
-        'The minimum processing amount is 100 NGN. Please request a new quote with  higher amount',
+        'The minimum processing amount is 100 NGN. Please request a new quote with a higher amount',
       );
       return;
     }
@@ -84,7 +95,7 @@ export default function DepositPage() {
       const response = await api.post('/deposits', {
         amount: normalizeAmount,
         quoteId: quoteResult?.quoteId,
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: generateIdempotencyKey(),
       });
 
       if (response.data.checkoutUrl) {
@@ -158,7 +169,7 @@ export default function DepositPage() {
         </div>
 
         <div className="flex justify-between mt-4">
-          <span className="font-medium flex items-center">Guranteed Until:</span>
+          <span className="font-medium flex items-center">Guaranteed Until:</span>
           <span className="font-bold text-red-600">{displayTime}</span>
         </div>
 
