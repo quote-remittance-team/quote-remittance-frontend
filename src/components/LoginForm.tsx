@@ -72,6 +72,7 @@ export default function LoginForm() {
         localStorage.setItem('userEmail', credentials.email);
 
         if (response.status === 200) {
+          localStorage.setItem('userEmail', credentials.email);
           const token = response.data.token;
           const userId = response.data.userId;
 

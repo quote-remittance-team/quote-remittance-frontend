@@ -1,4 +1,4 @@
-import { FiDollarSign, FiHome, FiRepeat, FiSettings } from 'react-icons/fi';
+import { FiDollarSign, FiHome, FiRepeat, FiSettings, FiPlusCircle } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 
 const links = [
@@ -21,6 +21,11 @@ const links = [
     label: 'Settings',
     path: '/dashboard/settings',
     icon: FiSettings,
+  },
+  {
+    label: 'Request Quote',
+    path: '/request-quote',
+    icon: FiPlusCircle,
   },
 ];
 
