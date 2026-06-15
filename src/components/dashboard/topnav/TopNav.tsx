@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FiBell, FiMenu, FiSearch } from 'react-icons/fi';
-import { ACCESS_TOKEN_KEY, api, USER_ID_KEY } from '@/api/client';
 
+import { ACCESS_TOKEN_KEY, api, USER_ID_KEY } from '@/api/client';
 import { navigateTo } from '@/utils/navigation';
 
 
