@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
     const { status } = error.response;
 
-    if (status === 401 || status === 403) {
+    if (status === 401) {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(USER_ID_KEY);
 
@@ -51,6 +51,11 @@ api.interceptors.response.use(
       return Promise.reject(new Error('Unauthorized'));
     }
 
-    return Promise.reject(error);
+    if (status === 403) {
+      console.warn('Forbidden request');
+      // optional: stay on page or redirect home
+    }
+
+    return Promise.reject(new Error('Forbidden'));
   },
 );

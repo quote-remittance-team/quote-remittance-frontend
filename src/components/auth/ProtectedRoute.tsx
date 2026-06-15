@@ -1,5 +1,6 @@
+import { ACCESS_TOKEN_KEY } from '@/api/client';
+
 import { Navigate, Outlet } from 'react-router-dom';
-import { ACCESS_TOKEN_KEY } from '@/api/
 
   const ProtectedRoute = () => {
   const token = localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -10,5 +11,4 @@ import { ACCESS_TOKEN_KEY } from '@/api/
 
   return <Outlet />;
 }
-
 export default ProtectedRoute;

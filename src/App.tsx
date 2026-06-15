@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
+
 import DashboardLayout from './components/dashboard/layouts/DashboardLayout';
 import DepositPage from './components/DepositPage';
 import LoginForm from './components/LoginForm';
@@ -14,8 +17,6 @@ import WalletPage from './pages/dashboard/WalletPage';
 import LandingPage from './pages/LandingPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { setNavigator } from './utils/navigation';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-
 
 function App() {
   const navigate = useNavigate();
