@@ -1,10 +1,36 @@
+import { ACCESS_TOKEN_KEY, api } from '@/api/client';
+import { navigateTo } from '@/utils/navigation';
+import { useEffect, useState } from 'react';
 import { FiBell, FiMenu, FiSearch } from 'react-icons/fi';
 
 type Props = {
   onMenuClick: () => void;
 };
 
+
+
+
 const TopNav = ({ onMenuClick }: Props) => {
+  const [user, setUser] = useState<{ email: string } | null>(null);
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await api.get('/users/me');
+      setUser(res.data);
+    } catch (err) {
+      console.error('Failed to fetch user', err);
+    }
+  };
+
+  fetchUser();
+}, []);
+
+ const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+
+    navigateTo('/login');
+  };
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
       <div className="flex h-20 items-center justify-between px-6 lg:px-8">
@@ -39,10 +65,15 @@ const TopNav = ({ onMenuClick }: Props) => {
             <div className="h-12 w-12 rounded-full bg-blue-600" />
 
             <div className="hidden md:block">
-              <p className="font-semibold">Ayodele</p>
-
-              <p className="text-sm text-slate-500">Administrator</p>
+              <p className="font-semibold">{user?.email || 'User'}</p>
+               <button
+  onClick={handleLogout}
+  className="text-sm text-blue-600 hover:underline"
+>
+  Logout
+</button>
             </div>
+           
           </div>
         </div>
       </div>
@@ -51,3 +82,6 @@ const TopNav = ({ onMenuClick }: Props) => {
 };
 
 export default TopNav;
+
+
+

@@ -14,6 +14,8 @@ import WalletPage from './pages/dashboard/WalletPage';
 import LandingPage from './pages/LandingPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { setNavigator } from './utils/navigation';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
 
 function App() {
   const navigate = useNavigate();
@@ -23,29 +25,34 @@ function App() {
   }, [navigate]);
 
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginForm />} />
+  <Routes>
+    {/* PUBLIC ROUTES */}
+    <Route path="/" element={<LandingPage />} />
+    <Route path="/login" element={<LoginForm />} />
+    <Route path="/register" element={<UserRegistrationForm />} />
+
+    {/* PROTECTED ROUTES */}
+    <Route element={<ProtectedRoute />}>
 
       {/* DASHBOARD */}
       <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<DashboardHomePage />} />
-
         <Route path="wallet" element={<WalletPage />} />
-
         <Route path="transactions" element={<TransactionsPage />} />
-
         <Route path="quotes" element={<QuotesPage />} />
-
         <Route path="settings" element={<SettingsPage />} />
       </Route>
 
-      <Route path="/request-quote" element={<QuoteRequestForm />} />
-      <Route path="/register" element={<UserRegistrationForm />} />
+      {/* OTHER PROTECTED PAGES */}
       <Route path="/deposit" element={<DepositPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
-  );
+      <Route path="/request-quote" element={<QuoteRequestForm />} />
+
+    </Route>
+
+    {/* FALLBACK */}
+    <Route path="*" element={<NotFoundPage />} />
+  </Routes>
+);
 }
 
 export default App;
