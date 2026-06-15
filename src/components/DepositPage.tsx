@@ -98,10 +98,17 @@ export default function DepositPage() {
         idempotencyKey: generateIdempotencyKey(),
       });
 
-      if (response.data.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl;
-      } else {
-        setGlobalError('No checkout URL returned from backend');
+      const { checkoutUrl, paymentReference } = response.data;
+
+if (checkoutUrl && paymentReference) {
+  localStorage.setItem('paymentReference', paymentReference);
+
+  // optional: also store quote context
+  localStorage.setItem('depositQuoteId', quoteResult?.quoteId || '');
+
+  window.location.href = checkoutUrl;
+} else {
+  setGlobalError('Missing checkoutUrl or paymentReference from backend');
       }
     } catch (error) {
       let serverMessage = 'could not initiate transaction with the server.';

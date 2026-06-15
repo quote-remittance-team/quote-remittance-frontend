@@ -232,7 +232,7 @@ export default function RegisterForm() {
               {isLoading ? 'Creating Account...' : 'Register'}
             </button>
           </div>
-        </form>
+        </form>z
       </div>
     </div>
   );
