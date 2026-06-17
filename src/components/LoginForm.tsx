@@ -164,7 +164,7 @@ export default function LoginForm() {
           </button>
         </form>
         <div className="text-gray-600 text-center">
-          Don't have an account? {''}
+          Don't have an account?{''}
           <Link to="/register" className="text-blue-600  hover:underline">
             Signup
           </Link>

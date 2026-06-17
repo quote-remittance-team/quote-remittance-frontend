@@ -235,7 +235,7 @@ export default function RegisterForm() {
           </div>
         </form>
         <div className=" text-gray-600 text-sm text-center">
-          Already have an account? {''}
+          Already have an account?{''}
           <Link to="/login" className="text-blue-600 hover:underline">
             Login
           </Link>
