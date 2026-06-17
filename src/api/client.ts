@@ -51,6 +51,11 @@ api.interceptors.response.use(
       return Promise.reject(new Error('Unauthorized'));
     }
 
-    return Promise.reject(error);
+    if (status === 403) {
+      console.warn('Forbidden request');
+      // optional: stay on page or redirect home
+    }
+
+    return Promise.reject(new Error('Forbidden'));
   },
 );
