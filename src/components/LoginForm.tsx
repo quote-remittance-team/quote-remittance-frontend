@@ -1,5 +1,6 @@
 import { isAxiosError } from 'axios';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { api, ACCESS_TOKEN_KEY, USER_ID_KEY } from '../api/client';
 
@@ -162,6 +163,12 @@ export default function LoginForm() {
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        <div className="text-gray-600 text-center">
+          Don't have an account?{''}
+          <Link to="/register" className="text-blue-600  hover:underline">
+            Signup
+          </Link>
+        </div>
       </div>
     </div>
   );

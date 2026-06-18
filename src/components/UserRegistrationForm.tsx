@@ -1,5 +1,6 @@
 import { isAxiosError } from 'axios';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { api } from '../api/client';
 
@@ -233,6 +234,12 @@ export default function RegisterForm() {
             </button>
           </div>
         </form>
+        <div className=" text-gray-600 text-sm text-center">
+          Already have an account?{''}
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Login
+          </Link>
+        </div>
       </div>
     </div>
   );
