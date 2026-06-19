@@ -70,7 +70,6 @@ export default function LoginForm() {
 
       try {
         const response = await api.post('/auth/login', credentials);
-        localStorage.setItem('userEmail', credentials.email);
 
         if (response.status === 200) {
           localStorage.setItem('userEmail', credentials.email);
