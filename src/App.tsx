@@ -13,6 +13,7 @@ import TransactionsPage from './pages/dashboard/TransactionsPage';
 import WalletPage from './pages/dashboard/WalletPage';
 import LandingPage from './pages/LandingPage';
 import NotFoundPage from './pages/NotFoundPage';
+import PaymentCallBack from './pages/PaymentCallBack';
 import { setNavigator } from './utils/navigation';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path="settings" element={<SettingsPage />} />
       </Route>
 
+      <Route path="/payment-callback" element={<PaymentCallBack />} />
       <Route path="/request-quote" element={<QuoteRequestForm />} />
       <Route path="/register" element={<UserRegistrationForm />} />
       <Route path="/deposit" element={<DepositPage />} />
