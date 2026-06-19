@@ -40,6 +40,11 @@ export default function DepositPage() {
   const [globalError, setGlobalError] = useState<string>('');
   const [isInitializingPayment, setIsInitializingPayment] = useState<boolean>(false);
 
+  // --- NEW BENEFICIARY INPUT STATES ---
+  const [receiverName, setReceiverName] = useState<string>('');
+  const [receiverBankCode, setReceiverBankCode] = useState<string>('');
+  const [receiverAccountNumber, setReceiverAccountNumber] = useState<string>('');
+
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     if (state?.quoteResult?.expiresAt) {
       const expireTime = new Date(state.quoteResult.expiresAt).getTime();
@@ -82,6 +87,18 @@ export default function DepositPage() {
 
   const handleDeposit = async () => {
     setGlobalError('');
+
+    // --- NEW VALIDATION CHECK ---
+    if (!receiverName.trim() || !receiverBankCode.trim() || !receiverAccountNumber.trim()) {
+      setGlobalError('Please fill out all recipient beneficiary details before processing payment.');
+      return;
+    }
+
+    if (receiverAccountNumber.trim().length !== 10) {
+      setGlobalError('Account number must be exactly 10 digits long.');
+      return;
+    }
+
     if (normalizeAmount < 100) {
       setGlobalError(
         'The minimum processing amount is 100 NGN. Please request a new quote with a higher amount',
@@ -92,23 +109,29 @@ export default function DepositPage() {
     setIsInitializingPayment(true);
 
     try {
+      // 1. Send the recipient details to your backend so the PENDING deposit captures them
       const response = await api.post('/deposits', {
         amount: normalizeAmount,
         quoteId: quoteResult?.quoteId,
         idempotencyKey: generateIdempotencyKey(),
+        receiverName: receiverName.trim(),
+        receiverBankCode: receiverBankCode.trim(),
+        receiverAccountNumber: receiverAccountNumber.trim(),
       });
 
       const { checkoutUrl, paymentReference } = response.data;
 
-if (checkoutUrl && paymentReference) {
-  localStorage.setItem('paymentReference', paymentReference);
+      if (checkoutUrl && paymentReference) {
+        // 2. Commit transaction context properties completely to client storage fallback arrays
+        localStorage.setItem('paymentReference', paymentReference);
+        localStorage.setItem('depositQuoteId', quoteResult?.quoteId || '');
+        localStorage.setItem('cachedReceiverName', receiverName.trim());
+        localStorage.setItem('cachedReceiverBankCode', receiverBankCode.trim());
+        localStorage.setItem('cachedReceiverAccountNumber', receiverAccountNumber.trim());
 
-  // optional: also store quote context
-  localStorage.setItem('depositQuoteId', quoteResult?.quoteId || '');
-
-  window.location.href = checkoutUrl;
-} else {
-  setGlobalError('Missing checkoutUrl or paymentReference from backend');
+        window.location.href = checkoutUrl;
+      } else {
+        setGlobalError('Missing checkoutUrl or paymentReference from backend');
       }
     } catch (error) {
       let serverMessage = 'could not initiate transaction with the server.';
@@ -127,48 +150,99 @@ if (checkoutUrl && paymentReference) {
     <div className="flex items-center justify-center min-h-screen px-4 py-8 bg-gray-50">
       <div className="w-full max-w-md p-6 mx-auto bg-white border border-blue-200 rounded-lg shadow-md sm:p-8">
         <div className="mb-6">
-          <h2 className="mb-6 text-2xl font-bold text-gray-800">Deposit Details</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Deposit details</h2>
           <p className="text-xs text-gray-500 mt-1">
             Quote Reference: {quoteResult?.quoteId || 'N/A'}
           </p>
         </div>
+        
         {globalError && (
           <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 border border-red-200 rounded-md">
             {globalError}
           </div>
         )}
+
+        {/* QUOTE BREAKDOWN CARD */}
         <div className="p-5 border border-gray-200 rounded-md bg-gray-50">
           <ul className="space-y-4 text-sm text-gray-600">
             <li className="flex justify-between pb-3 border-b border-gray-200">
               <span>You are sending:</span>
               <span className="font-bold text-gray-900">
-                {requestData?.sendAmount}
-                {requestData?.fromCurrency}
+                {requestData?.sendAmount} {requestData?.fromCurrency}
               </span>
             </li>
-
             <li className="flex justify-between pt-2">
               <span>Exchange Rate:</span>
               <span className="font-medium text-gray-900">{quoteResult?.exchangeRate}</span>
             </li>
-
             <li className="flex justify-between">
               <span>Processing Fee:</span>
               <span className="font-medium text-gray-900">
-                {quoteResult?.fee}
-                {requestData?.fromCurrency}
+                {quoteResult?.fee} {requestData?.fromCurrency}
               </span>
             </li>
-
             <li className="flex justify-between pt-4 mt-2 border-t border-gray-300">
               <span className="text-base font-bold text-gray-800">Recipient Receives:</span>
               <span className="text-xl font-extrabold text-green-600">
-                {quoteResult?.receiveAmount}
-                {requestData?.toCurrency}
+                {quoteResult?.receiveAmount} {requestData?.toCurrency}
               </span>
             </li>
           </ul>
         </div>
+
+        {/* --- NEW SECTION: RECIPIENT ACCOUNT DETAILS FORM --- */}
+        <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+            Recipient Payout Destination
+          </h3>
+          
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Receiver Full Name
+            </label>
+            <input
+              type="text"
+              value={receiverName}
+              onChange={(e) => setReceiverName(e.target.value)}
+              placeholder="e.g. Tolulope Olanrewaju"
+              disabled={isInitializingPayment}
+              className="w-full p-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                Bank Code
+              </label>
+              <input
+                type="text"
+                value={receiverBankCode}
+                onChange={(e) => setReceiverBankCode(e.target.value)}
+                placeholder="044"
+                maxLength={4}
+                disabled={isInitializingPayment}
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm font-mono text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                Account Number
+              </label>
+              <input
+                type="text"
+                value={receiverAccountNumber}
+                onChange={(e) => setReceiverAccountNumber(e.target.value.replace(/\D/g, ''))} // Digits only
+                placeholder="10-digit number"
+                maxLength={10}
+                disabled={isInitializingPayment}
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
+        {/* --- END OF NEW FORM SECTION --- */}
 
         <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md text-xs text-blue-800 space-y-1">
           <span className="font-medium">Generated At:</span>
