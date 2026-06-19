@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+
 import { navigateTo } from '../utils/navigation';
 
 // Constants
@@ -78,7 +79,7 @@ export const remittanceService = {
    * @param reference The raw trxref/reference token extracted from the callback URL
    */
   verifyPayment: async (reference: string) => {
-    console.log(`🚀 Sending verification call to server for reference: ${reference}`);
+  
     const response = await api.get(`/remittances/verify/${reference}`);
     return response.data; 
   }

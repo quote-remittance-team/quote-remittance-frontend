@@ -1,6 +1,7 @@
-import { api, remittanceService } from '@/api/client';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import {  remittanceService } from '@/api/client';
 
 // 1. Declare the exact type matching your backend RemittanceResponse fields
 interface RemittanceResponse {
@@ -10,6 +11,7 @@ interface RemittanceResponse {
   receiveAmount: number;  // The USD payout amount
   status: 'PROCESSING' | 'COMPLETED' | 'FAILED';
   createdAt: string;
+  error: string;
 }
 
 const PaymentCallBack = () => {
@@ -32,8 +34,7 @@ const PaymentCallBack = () => {
     }
 
     const verifyPaymentAndCreateRemittance = async () => {
-      // 🚨 THE CRITICAL GUARD: Stop the API execution if the session token isn't ready
-      // Check your local storage keys. Change 'accessToken' if your token is saved under 'token' or 'jwt'
+      
       const token = localStorage.getItem('accessToken'); 
 
       if (!token) {
@@ -44,11 +45,9 @@ const PaymentCallBack = () => {
 
       try {
         setStatus('CHECKING');
-        
-        // 2. Point this directly to your explicit verify endpoint!
+        /* endpoint consuming */
         const data: RemittanceResponse = await remittanceService.verifyPayment(reference);
         
-        console.log("🎉 Network response successful payload:", data);
         setRemittanceData(data);
         
         if (data.status === 'PROCESSING' || data.status === 'COMPLETED') {
@@ -59,12 +58,12 @@ const PaymentCallBack = () => {
           setStatus('FAILED');
           setErrorMessage('The transaction status returned as unserviceable.');
         }
-      } catch (err: any) {
-        console.error("❌ Request caught in exception block:", err.response);
+      } catch (error) {
+        console.error(" Request caught in exception block:", err.response);
         setStatus('ERROR');
         setErrorMessage(
-          err.response?.data?.message || 
-          `Server authentication block or connection rejected (${err.response?.status || 'No Status Status'})`
+          error.response?.data?.message || 
+          `Server authentication block or connection rejected (${error.response?.status || 'No Status Status'})`
         );
       }
     };
