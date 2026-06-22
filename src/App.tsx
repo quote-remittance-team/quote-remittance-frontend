@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardLayout from './components/dashboard/layouts/DashboardLayout';
 import DepositPage from './components/DepositPage';
 import LoginForm from './components/LoginForm';
@@ -25,26 +26,29 @@ function App() {
 
   return (
     <Routes>
+      {/* PUBLIC ROUTES */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginForm />} />
+      <Route path="/register" element={<UserRegistrationForm />} />
 
-      {/* DASHBOARD */}
-      <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route index element={<DashboardHomePage />} />
+      {/* PROTECTED ROUTES */}
+      <Route element={<ProtectedRoute />}>
+        {/* DASHBOARD */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardHomePage />} />
+          <Route path="wallet" element={<WalletPage />} />
+          <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="quotes" element={<QuotesPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
 
-        <Route path="wallet" element={<WalletPage />} />
-
-        <Route path="transactions" element={<TransactionsPage />} />
-
-        <Route path="quotes" element={<QuotesPage />} />
-
-        <Route path="settings" element={<SettingsPage />} />
+        {/* OTHER PROTECTED PAGES */}
+        <Route path="/deposit" element={<DepositPage />} />
+        <Route path="/request-quote" element={<QuoteRequestForm />} />
+        <Route path="/payment-callback" element={<PaymentCallBack />} />
       </Route>
 
-      <Route path="/payment-callback" element={<PaymentCallBack />} />
-      <Route path="/request-quote" element={<QuoteRequestForm />} />
-      <Route path="/register" element={<UserRegistrationForm />} />
-      <Route path="/deposit" element={<DepositPage />} />
+      {/* FALLBACK */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

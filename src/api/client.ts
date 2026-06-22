@@ -74,7 +74,12 @@ api.interceptors.response.use(
       // Let the error flow safely to the page catch block without resetting the app state
     }
 
-    return Promise.reject(error);
+    if (status === 403) {
+      console.warn('Forbidden request');
+      // optional: stay on page or redirect home
+    }
+
+    return Promise.reject(new Error('Forbidden'));
   },
 );
 
